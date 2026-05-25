@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MedVault — David Grace · Ilmenau 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #060911;
+  --surface: #0c1120;
+  --surface2: #111827;
+  --border: #1a2540;
+  --border2: #243050;
+  --accent: #00d4ff;
+  --accent-dim: rgba(0,212,255,0.12);
+  --red: #ff4560;
+  --red-dim: rgba(255,69,96,0.12);
+  --amber: #fbbf24;
+  --amber-dim: rgba(251,191,36,0.1);
+  --green: #10b981;
+  --green-dim: rgba(16,185,129,0.1);
+  --purple: #a78bfa;
+  --purple-dim: rgba(167,139,250,0.1);
+  --text: #e1e7ef;
+  --text2: #8b9ab5;
+  --text3: #4a5878;
+  --font-display: 'Syne', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --radius: 10px;
+  --transition: 0.18s ease;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  min-height: 100vh;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* GRID BG */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0,212,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,212,255,0.025) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+body::after {
+  content: '';
+  position: fixed;
+  top: -30vh;
+  left: -20vw;
+  width: 80vw;
+  height: 80vh;
+  background: radial-gradient(ellipse, rgba(0,212,255,0.05) 0%, transparent 65%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.app { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 0 20px 60px; }
+
+/* ─── HEADER ─── */
+.header {
+  padding: 40px 0 32px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 32px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  animation: fadeUp 0.5s ease both;
+}
+.header-left {}
+.header-tag {
+  font-size: 10px;
+  letter-spacing: 4px;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+.header h1 {
+  font-family: var(--font-display);
+  font-size: clamp(28px, 6vw, 48px);
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.05;
+  letter-spacing: -1px;
+}
+.header h1 span { color: var(--accent); }
+.header-meta { font-size: 11px; color: var(--text3); margin-top: 8px; }
+.header-meta b { color: var(--text2); }
+.header-right { text-align: right; }
+.last-updated {
+  font-size: 10px;
+  color: var(--text3);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 12px;
+  display: inline-block;
+}
+.last-updated b { color: var(--accent); display: block; font-size: 13px; margin-top: 2px; }
+
+/* ─── STAT ROW ─── */
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 28px;
+  animation: fadeUp 0.5s 0.1s ease both;
+}
+@media(min-width:600px){ .stat-row { grid-template-columns: repeat(4,1fr); } }
+
+.stat {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color var(--transition);
+}
+.stat:hover { border-color: var(--border2); }
+.stat::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+}
+.stat:nth-child(1)::before { background: var(--accent); }
+.stat:nth-child(2)::before { background: var(--green); }
+.stat:nth-child(3)::before { background: var(--amber); }
+.stat:nth-child(4)::before { background: var(--red); }
+.stat-label { font-size: 9px; letter-spacing: 2px; color: var(--text3); text-transform: uppercase; margin-bottom: 6px; }
+.stat-value { font-family: var(--font-display); font-size: 32px; font-weight: 800; color: #fff; line-height: 1; }
+.stat-sub { font-size: 9px; color: var(--text3); margin-top: 4px; }
+
+/* ─── ANALYTICS PANEL ─── */
+.analytics {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-bottom: 28px;
+  animation: fadeUp 0.5s 0.15s ease both;
+}
+@media(min-width:720px){ .analytics { grid-template-columns: 1fr 1fr; } }
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+.panel-title {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.panel-title::after { content: ''; flex:1; height:1px; background: var(--border); }
+
+/* category bars */
+.cat-row { display:flex; align-items:center; gap:10px; margin-bottom:9px; }
+.cat-name { font-size:10px; color:var(--text2); width:150px; flex-shrink:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.cat-track { flex:1; height:6px; background:var(--border); border-radius:3px; overflow:hidden; }
+.cat-fill { height:100%; border-radius:3px; transition: width 1s cubic-bezier(0.16,1,0.3,1); }
+.cat-num { font-size:10px; color:var(--text3); width:18px; text-align:right; }
+
+/* rarity bars vertical */
+.rarity-bars { display:flex; align-items:flex-end; gap:8px; height:90px; }
+.r-col { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; gap:4px; }
+.r-bar { width:100%; border-radius:3px 3px 0 0; transition: height 1s cubic-bezier(0.16,1,0.3,1); }
+.r-val { font-family:var(--font-display); font-size:14px; font-weight:700; color:#fff; }
+.r-lbl { font-size:8px; color:var(--text3); text-align:center; line-height:1.3; }
+
+/* alerts */
+.alerts-list { display:flex; flex-direction:column; gap:8px; }
+.alert {
+  border-radius:8px;
+  padding:10px 12px;
+  display:flex;
+  gap:10px;
+  align-items:flex-start;
+}
+.alert.danger { background:var(--red-dim); border:1px solid rgba(255,69,96,0.2); }
+.alert.warn { background:var(--amber-dim); border:1px solid rgba(251,191,36,0.2); }
+.alert.good { background:var(--green-dim); border:1px solid rgba(16,185,129,0.2); }
+.alert.info { background:var(--accent-dim); border:1px solid rgba(0,212,255,0.2); }
+.alert-icon { font-size:14px; flex-shrink:0; margin-top:1px; }
+.alert-text {}
+.alert-title { font-size:10px; font-weight:700; margin-bottom:2px; }
+.alert.danger .alert-title { color:var(--red); }
+.alert.warn .alert-title { color:var(--amber); }
+.alert.good .alert-title { color:var(--green); }
+.alert.info .alert-title { color:var(--accent); }
+.alert-body { font-size:9px; color:var(--text2); line-height:1.6; }
+
+/* ─── CONTROLS ─── */
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 18px;
+  animation: fadeUp 0.5s 0.2s ease both;
+  align-items: center;
+}
+
+.search-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 200px;
+}
+.search-wrap svg {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text3);
+  pointer-events: none;
+}
+#searchInput {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  padding: 10px 12px 10px 36px;
+  outline: none;
+  transition: border-color var(--transition);
+}
+#searchInput:focus { border-color: var(--accent); }
+#searchInput::placeholder { color: var(--text3); }
+
+.select-wrap select {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 10px 12px;
+  outline: none;
+  cursor: pointer;
+  transition: border-color var(--transition);
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 28px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%234a5878' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+}
+.select-wrap select:focus { border-color: var(--accent); }
+
+.filter-chips { display:flex; flex-wrap:wrap; gap:6px; }
+.chip {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  padding: 5px 10px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text2);
+  cursor: pointer;
+  transition: all var(--transition);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.chip:hover { border-color: var(--accent); color: var(--accent); }
+.chip.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+.chip.cat-antibiotic.active { background:var(--red-dim); border-color:var(--red); color:var(--red); }
+.chip.cat-supplement.active { background:var(--purple-dim); border-color:var(--purple); color:var(--purple); }
+.chip.cat-analgesic.active { background:var(--amber-dim); border-color:var(--amber); color:var(--amber); }
+.chip.cat-gi.active { background:var(--green-dim); border-color:var(--green); color:var(--green); }
+
+/* ─── RESULTS INFO ─── */
+.results-info {
+  font-size: 10px;
+  color: var(--text3);
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.results-info b { color: var(--text2); }
+
+/* ─── TABLE ─── */
+.table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  animation: fadeUp 0.5s 0.25s ease both;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 780px;
+}
+
+thead tr {
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+}
+
+th {
+  font-family: var(--font-display);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  color: var(--text3);
+  text-transform: uppercase;
+  padding: 12px 14px;
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  transition: color var(--transition);
+  position: relative;
+}
+th:hover { color: var(--accent); }
+th.sorted { color: var(--accent); }
+th .sort-icon { margin-left:4px; opacity:0.4; }
+th.sorted .sort-icon { opacity:1; }
+
+tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background var(--transition);
+  animation: rowIn 0.3s ease both;
+}
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: rgba(0,212,255,0.03); }
+
+td {
+  padding: 12px 14px;
+  font-size: 11px;
+  vertical-align: top;
+}
+
+.td-sl { color: var(--text3); font-size: 10px; width: 40px; }
+.td-name {}
+.td-generic { color: var(--text); font-weight: 500; line-height: 1.4; }
+.td-brand { font-size: 9px; color: var(--text3); margin-top: 2px; }
+.td-type {}
+.td-use { color: var(--text2); font-size: 10px; max-width: 220px; line-height: 1.5; }
+.td-rarity { width: 90px; }
+
+/* TYPE BADGE */
+.type-badge {
+  display: inline-block;
+  font-size: 8px;
+  padding: 3px 8px;
+  border-radius: 20px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.type-antibiotic { background:var(--red-dim); color:var(--red); border:1px solid rgba(255,69,96,0.25); }
+.type-supplement { background:var(--purple-dim); color:var(--purple); border:1px solid rgba(167,139,250,0.25); }
+.type-analgesic { background:var(--amber-dim); color:var(--amber); border:1px solid rgba(251,191,36,0.25); }
+.type-gi { background:var(--green-dim); color:var(--green); border:1px solid rgba(16,185,129,0.25); }
+.type-topical { background:rgba(56,189,248,0.1); color:#38bdf8; border:1px solid rgba(56,189,248,0.2); }
+.type-antihistamine { background:rgba(244,114,182,0.1); color:#f472b6; border:1px solid rgba(244,114,182,0.2); }
+.type-vitamin { background:rgba(52,211,153,0.1); color:#34d399; border:1px solid rgba(52,211,153,0.2); }
+.type-cognitive { background:var(--accent-dim); color:var(--accent); border:1px solid rgba(0,212,255,0.25); }
+.type-antiemetic { background:rgba(251,146,60,0.1); color:#fb923c; border:1px solid rgba(251,146,60,0.2); }
+.type-antifungal { background:rgba(196,181,253,0.1); color:#c4b5fd; border:1px solid rgba(196,181,253,0.2); }
+.type-nasal { background:rgba(125,211,252,0.1); color:#7dd3fc; border:1px solid rgba(125,211,252,0.2); }
+.type-supply { background:rgba(148,163,184,0.1); color:#94a3b8; border:1px solid rgba(148,163,184,0.2); }
+.type-herbal { background:rgba(163,230,53,0.1); color:#a3e635; border:1px solid rgba(163,230,53,0.2); }
+.type-probiotic { background:rgba(74,222,128,0.1); color:#4ade80; border:1px solid rgba(74,222,128,0.2); }
+.type-antidiarrhoeal { background:rgba(251,191,36,0.08); color:#fbbf24; border:1px solid rgba(251,191,36,0.2); }
+.type-anaesthetic { background:rgba(248,113,113,0.1); color:#f87171; border:1px solid rgba(248,113,113,0.2); }
+
+/* RARITY METER */
+.rarity-meter { display:flex; flex-direction:column; gap:4px; }
+.rarity-track { height:4px; background:var(--border); border-radius:2px; overflow:hidden; }
+.rarity-fill { height:100%; border-radius:2px; }
+.rarity-num { font-size:9px; color:var(--text3); }
+.rarity-flag { font-size:8px; font-weight:600; }
+
+/* DUPLICATE INDICATOR */
+.dup-dot {
+  display: inline-block;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--amber);
+  margin-left: 5px;
+  vertical-align: middle;
+  title: 'Duplicate generic';
+}
+
+/* EMPTY STATE */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text3);
+  display: none;
+}
+.empty-state svg { margin-bottom: 12px; opacity: 0.3; }
+.empty-state p { font-size: 12px; }
+
+/* ─── FOOTER ─── */
+.footer {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 9px;
+  color: var(--text3);
+  letter-spacing: 1px;
+}
+.footer a { color: var(--accent); text-decoration: none; }
+
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(14px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+@keyframes rowIn {
+  from { opacity:0; }
+  to   { opacity:1; }
+}
+
+/* scrollbar */
+::-webkit-scrollbar { width:6px; height:6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius:3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text3); }
+
+/* MODAL */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(6,9,17,0.88);
+  backdrop-filter: blur(4px);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+.modal-overlay.open { opacity:1; pointer-events:all; }
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 14px;
+  padding: 28px;
+  max-width: 520px;
+  width: 100%;
+  transform: translateY(20px);
+  transition: transform 0.2s ease;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+.modal-overlay.open .modal { transform: translateY(0); }
+.modal-close {
+  float: right;
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text2);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.modal-close:hover { border-color: var(--red); color: var(--red); }
+.modal-tag { font-size:9px; letter-spacing:3px; color:var(--accent); text-transform:uppercase; margin-bottom:6px; }
+.modal-name { font-family: var(--font-display); font-size:20px; font-weight:800; color:#fff; margin-bottom:4px; }
+.modal-brand { font-size:11px; color:var(--text3); margin-bottom:16px; }
+.modal-row { display:flex; gap:10px; margin-bottom:8px; align-items:flex-start; }
+.modal-row-label { font-size:9px; color:var(--text3); text-transform:uppercase; letter-spacing:1px; width:80px; flex-shrink:0; margin-top:2px; }
+.modal-row-val { font-size:11px; color:var(--text2); line-height:1.6; }
+.modal-divider { height:1px; background:var(--border); margin:14px 0; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-left">
+      <div class="header-tag">Graceman / MedVault</div>
+      <h1>Med<span>Vault</span></h1>
+      <div class="header-meta">
+        <b>David Grace</b> · Ilmenau, Germany · MSc RCSE · TU Ilmenau
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="last-updated">
+        LAST UPDATED
+        <b>May 2026</b>
+      </div>
+    </div>
+  </header>
+
+  <!-- STATS -->
+  <div class="stat-row" id="statsRow"></div>
+
+  <!-- ANALYTICS -->
+  <div class="analytics">
+    <div class="panel">
+      <div class="panel-title">By Category</div>
+      <div id="catChart"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Rarity in Germany</div>
+      <div class="rarity-bars" id="rarityChart"></div>
+      <p style="font-size:9px;color:var(--text3);margin-top:10px;">0 = easily available · 100 = unavailable / Rx-only</p>
+    </div>
+    <div class="panel" style="grid-column:1/-1">
+      <div class="panel-title">Clinical Alerts</div>
+      <div class="alerts-list" id="alertsList"></div>
+    </div>
+  </div>
+
+  <!-- CONTROLS -->
+  <div class="controls">
+    <div class="search-wrap">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" id="searchInput" placeholder="Search generic name, brand, use case...">
+    </div>
+    <div class="select-wrap">
+      <select id="sortSelect">
+        <option value="sl-asc">Sl# Ascending</option>
+        <option value="sl-desc">Sl# Descending</option>
+        <option value="name-asc">Name A→Z</option>
+        <option value="name-desc">Name Z→A</option>
+        <option value="rarity-asc">Rarity Low→High</option>
+        <option value="rarity-desc">Rarity High→Low</option>
+      </select>
+    </div>
+  </div>
+  <div class="filter-chips" id="filterChips" style="margin-bottom:14px;"></div>
+
+  <!-- RESULTS INFO -->
+  <div class="results-info">
+    <span id="resultsCount"></span>
+    <span id="dupNote" style="color:var(--amber);font-size:9px;"></span>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr id="tableHead"></tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+    <div class="empty-state" id="emptyState">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <p>No medications match your search.</p>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <span>MEDVAULT · GRACEMAN PERSONAL SYSTEMS · 2026</span>
+    <span>43 ITEMS · STATIC · <a href="https://github.com/gracemann365" target="_blank">GITHUB.COM/GRACEMANN365</a></span>
+  </footer>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modalContent"></div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+//  DATA
+// ─────────────────────────────────────────────
+const MEDS = [
+  { sl:1,  generic:"Ciprofloxacin Hydrochloride 500mg", brand:"Ciplox-500", category:"antibiotic", type:"Antibiotic (Fluoroquinolone)", use:"UTI, respiratory infections, skin, bone, GI bacterial infections", rarity:5, legal:"OTC in India; Prescription-only in Germany (verschreibungspflichtig)", notes:"Broad-spectrum. Avoid prolonged self-use. Tendon risk with overuse.", dup:true },
+  { sl:2,  generic:"Ciprofloxacin Hydrochloride 500mg", brand:"Ciprobid-500", category:"antibiotic", type:"Antibiotic (Fluoroquinolone)", use:"Same as Ciplox-500 — duplicate brand", rarity:5, legal:"Prescription-only in Germany", notes:"Duplicate of #1. Label separately to avoid double-dosing.", dup:true },
+  { sl:3,  generic:"Trypsin + Chymotrypsin", brand:"Chymoral Forte", category:"analgesic", type:"Proteolytic Enzyme", use:"Post-surgical swelling, inflammation, wound healing, sports injuries", rarity:75, legal:"Not registered in Germany; not a standard EU drug", notes:"Very hard to find in Germany. Use existing stock. No German equivalent OTC.", dup:false },
+  { sl:4,  generic:"Luliconazole 1% w/w Cream", brand:"LULIOL", category:"topical", type:"Antifungal (Topical)", use:"Ringworm, athlete's foot, tinea cruris, dermatophyte infections", rarity:80, legal:"Not widely available in Germany. German alternative: Clotrimazole cream.", notes:"Highly effective but India-specific formulation. Stock carefully.", dup:false },
+  { sl:5,  generic:"Diclofenac + Methyl Salicylate Gel", brand:"CiplaHealth OmniGel", category:"topical", type:"NSAID Topical Analgesic", use:"Muscle pain, sprains, strains, joint inflammation", rarity:40, legal:"Germany has Voltaren (Diclofenac gel) — good alternative available", notes:"German pharmacies carry Voltaren as a near-equivalent.", dup:false },
+  { sl:6,  generic:"Lignocaine Hydrochloride Gel IP 2%", brand:"Lox-2% Jelly", category:"anaesthetic", type:"Local Anaesthetic (Topical)", use:"Urethral catheterisation, wound surface anaesthesia, mucous membrane pain", rarity:30, legal:"Available in Germany via prescription for medical use", notes:"Sterile formulation. For external use only.", dup:false },
+  { sl:7,  generic:"Oxymetazoline Hydrochloride Nasal Solution", brand:"Otrivin Oxy", category:"nasal", type:"Nasal Decongestant", use:"Nasal congestion, blocked nose, sinusitis, allergic rhinitis", rarity:20, legal:"Available OTC in Germany (Otriven brand)", notes:"Do not use for more than 5–7 days. Rebound congestion risk.", dup:false },
+  { sl:8,  generic:"Glycerin + Magnesium Sulphate IP", brand:"Hospital-Prepared (St John's)", category:"topical", type:"Topical Osmotic Agent", use:"Drawing out boils, carbuncles, abscesses, infected wounds", rarity:85, legal:"Hospital-compounded. Not commercially available in Germany.", notes:"Irreplaceable. Hospital-made batch. Use sparingly.", dup:false },
+  { sl:9,  generic:"Sterile Gauze Swabs BP 1988", brand:"(Generic) 7.5×7.5cm 12-PLY 5nos", category:"supply", type:"Medical Supply", use:"Wound dressing, cleaning wounds, first aid, sterile coverage", rarity:5, legal:"Freely available in German pharmacies (Apotheke)", notes:"Can be replenished easily in Germany.", dup:false },
+  { sl:10, generic:"Paracetamol 650mg", brand:"Dolo 650", category:"analgesic", type:"Analgesic / Antipyretic", use:"Fever, mild to moderate pain, headache, post-vaccination fever", rarity:10, legal:"Germany equivalent: Paracetamol 500mg widely available OTC. 650mg less common.", notes:"German OTC dose is 500mg. You carry 650mg — use same dosing.", dup:true },
+  { sl:11, generic:"Cetirizine Hydrochloride 10mg", brand:"Cetzine", category:"antihistamine", type:"Antihistamine (2nd gen)", use:"Seasonal allergies, hay fever, urticaria, allergic rhinitis, eczema", rarity:5, legal:"Available OTC in Germany (Cetirizin, Zyrtec)", notes:"Freely available. Easy to replenish.", dup:false },
+  { sl:12, generic:"Cetirizine HCl + Ambroxol HCl", brand:"Nest-AX", category:"antihistamine", type:"Antihistamine + Mucolytic Combo", use:"Allergic cough with mucus, post-nasal drip, productive cough with congestion", rarity:70, legal:"This exact combo not available in Germany. Buy separately.", notes:"Get Cetirizin (OTC) + Ambroxol (Mucosolvan) separately in Germany.", dup:false },
+  { sl:13, generic:"Azithromycin 500mg", brand:"Azyros-500", category:"antibiotic", type:"Antibiotic (Macrolide)", use:"Respiratory tract infections, ENT, skin, atypical pneumonia", rarity:10, legal:"Prescription-only in Germany (Zithromax)", notes:"3-day course standard. Do not self-prescribe in Germany.", dup:true },
+  { sl:14, generic:"Ondansetron 4mg", brand:"Emeset-4", category:"antiemetic", type:"Antiemetic (5-HT3 Antagonist)", use:"Nausea, vomiting, post-op nausea, chemotherapy-induced nausea", rarity:15, legal:"Prescription-only in Germany (Zofran)", notes:"Excellent antiemetic. Carry for travel emergencies.", dup:true },
+  { sl:15, generic:"Cefixime + Lactic Acid Bacillus", brand:"Hiefect-LB200", category:"antibiotic", type:"Antibiotic + Probiotic Combo", use:"Bacterial infections with gut flora protection during antibiotic course", rarity:80, legal:"This combo formulation not registered in Germany. Take separately.", notes:"Germany: Cefixime (Rx) + separate probiotic. Combo pill is India-specific.", dup:false },
+  { sl:16, generic:"Rifaximin IP", brand:"Rifagut", category:"gi", type:"Antibiotic (Rifamycin class, GI)", use:"Traveller's diarrhoea, IBS-D, hepatic encephalopathy, gut bacterial overgrowth", rarity:35, legal:"Available in Germany via GI specialist prescription", notes:"Gut-specific, minimal systemic absorption. Very useful for travel GI emergencies.", dup:false },
+  { sl:17, generic:"Pre + Probiotic Capsules", brand:"ZGUT", category:"gi", type:"Probiotic / Prebiotic", use:"Gut microbiome support, post-antibiotic recovery, IBS, bloating", rarity:40, legal:"Freely available in Germany (dm, Rossmann, Amazon.de)", notes:"German alternatives: Mutaflor, Omni-Biotic, Floralba. Easy to replenish.", dup:false },
+  { sl:18, generic:"Loperamide Hydrochloride", brand:"Aurobindo Generic", category:"gi", type:"Antidiarrhoeal", use:"Acute and chronic diarrhoea, traveller's diarrhoea, IBS flares", rarity:5, legal:"Available OTC in Germany (Imodium, Loperamid-ratiopharm)", notes:"Exact equivalent freely available. Easy replenish.", dup:true },
+  { sl:19, generic:"Modafinil 200mg", brand:"Modalert ×50 tabs", category:"cognitive", type:"Wakefulness Agent (Schedule IV)", use:"Narcolepsy, shift work disorder, cognitive enhancement, fatigue management", rarity:70, legal:"⚠ BtMG Schedule III in Germany — prescription required. DO NOT import more than 3-month supply.", notes:"Get psychiatrist referral via Studentenwerk TU Ilmenau ASAP for Vigil (German brand). Do not carry loose.", dup:true },
+  { sl:20, generic:"Modafinil 100mg", brand:"Modalert ×26 tabs", category:"cognitive", type:"Wakefulness Agent (Schedule IV)", use:"Same as above — lower dose for light use / microdosing", rarity:70, legal:"Same BtMG legal situation as #19", notes:"76 total tabs across both packs. Secure them properly.", dup:true },
+  { sl:21, generic:"Ketoconazole + Zinc Pyrithione Shampoo", brand:"Ketoglaze", category:"topical", type:"Antifungal Shampoo", use:"Dandruff, seborrhoeic dermatitis, tinea capitis, scalp fungal infections", rarity:55, legal:"Ketoconazole shampoo available in Germany via prescription. Zinc Pyrithione OTC.", notes:"German alt: Head & Shoulders Intensiv (ZnP) or Nizoral (Rx for Ketoconazole).", dup:false },
+  { sl:22, generic:"Paracetamol 325mg + Phenylephrine 5mg + Chlorpheniramine 2mg", brand:"Sneezy (Cadila)", category:"antihistamine", type:"Cold & Flu Combination", use:"Common cold, flu, sinus congestion, runny nose, fever, allergic rhinitis", rarity:75, legal:"This triple combination not registered in Germany. Buy components separately.", notes:"Germany: Paracetamol OTC + decongestant spray + antihistamine separately.", dup:false },
+  { sl:23, generic:"Azithromycin 500mg", brand:"Azifed-500", category:"antibiotic", type:"Antibiotic (Macrolide)", use:"Same as Azyros-500 — respiratory, ENT, skin bacterial infections", rarity:10, legal:"Prescription-only in Germany", notes:"Duplicate of #13. Consolidate and label. Do not double-dose.", dup:true },
+  { sl:24, generic:"Ondansetron 4mg", brand:"Emeset-4 (2nd pack)", category:"antiemetic", type:"Antiemetic (5-HT3 Antagonist)", use:"Nausea, vomiting — same as #14", rarity:15, legal:"Prescription-only in Germany", notes:"Second pack. Good to have as backup for emergencies.", dup:true },
+  { sl:25, generic:"Loperamide Hydrochloride", brand:"Lopamide", category:"gi", type:"Antidiarrhoeal", use:"Same as #18 — acute diarrhoea", rarity:5, legal:"OTC equivalent in Germany (Imodium)", notes:"Duplicate brand of #18. Consolidate stock.", dup:true },
+  { sl:26, generic:"Paracetamol 650mg", brand:"Paracip", category:"analgesic", type:"Analgesic / Antipyretic", use:"Same as Dolo 650 — fever, pain", rarity:10, legal:"Germany: 500mg Paracetamol OTC. Equivalent available.", notes:"Duplicate of #10. Consolidate. Label clearly.", dup:true },
+  { sl:27, generic:"Beclomethasone + Neomycin + Miconazole Cream", brand:"Megasept-N 15g", category:"topical", type:"Triple Combination Topical (Steroid+Antibiotic+Antifungal)", use:"Infected eczema, mixed bacterial and fungal skin infections, intertrigo", rarity:90, legal:"⚠ Triple steroid combo largely unavailable/banned in Germany. Use only for genuine mixed infections.", notes:"Extremely rare in Germany. Use conservatively. No direct equivalent.", dup:false },
+  { sl:28, generic:"Diclofenac + Methyl Salicylate Spray", brand:"Volini Spray", category:"topical", type:"NSAID Topical Spray", use:"Acute muscle pain, sports injuries, joint pain, sprains", rarity:45, legal:"Voltaren (Diclofenac) spray available in Germany", notes:"Voltaren Schmerzgel is a good German alternative.", dup:false },
+  { sl:29, generic:"Camphor + Menthol + Clove Oil blend", brand:"Axe Oil", category:"herbal", type:"Herbal Topical Analgesic", use:"Headache (temple application), muscle aches, nasal congestion, insect bites", rarity:85, legal:"Not sold in Germany. Asian grocery stores (Asialaden) may carry it.", notes:"Check Asian supermarkets in larger German cities. Not replaceable via Apotheke.", dup:false },
+  { sl:30, generic:"Surgical Face Mask (Type II)", brand:"Blue Surgical Mask ×20", category:"supply", type:"Medical Supply / PPE", use:"Infection prevention, allergen/dust protection, public health compliance", rarity:5, legal:"Freely available in Germany (Apotheke, Amazon.de, DM)", notes:"Easy to replenish anywhere.", dup:false },
+  { sl:31, generic:"Rhodiola Rosea Extract 500mg", brand:"Trexgenics", category:"supplement", type:"Adaptogen / Supplement", use:"Stress resilience, cognitive fatigue reduction, mood, physical endurance", rarity:30, legal:"Legal supplement in Germany (Nahrungsergänzungsmittel)", notes:"Cycle: 4 weeks on, 2 weeks off to prevent adaptation. Available on Amazon.de.", dup:false },
+  { sl:32, generic:"L-Tyrosine 500mg", brand:"Trexgenics", category:"supplement", type:"Amino Acid Supplement", use:"Dopamine/norepinephrine precursor, focus, cognitive performance under stress", rarity:25, legal:"Legal supplement in Germany", notes:"Stack synergy with Modafinil. Available on iHerb.de, Amazon.de.", dup:false },
+  { sl:33, generic:"L-Carnosine 500mg", brand:"Trexgenics", category:"supplement", type:"Amino Acid / Antioxidant", use:"Neuroprotection, antioxidant, anti-glycation, cellular protection", rarity:35, legal:"Legal supplement in Germany", notes:"Good for long-term neuroprotection. Available online.", dup:false },
+  { sl:34, generic:"Magnesium L-Threonate 667mg", brand:"Trexgenics", category:"supplement", type:"Cognitive Mineral Supplement", use:"Brain magnesium elevation, memory, synaptic plasticity, cognitive health", rarity:55, legal:"Legal but niche in Germany. Available via iHerb, Amazon.de", notes:"Most brain-bioavailable form of magnesium. Best kept in stock.", dup:false },
+  { sl:35, generic:"Alpha-GPC 500mg", brand:"Trexgenics", category:"supplement", type:"Cholinergic Supplement", use:"Acetylcholine precursor, memory, learning, focus, Modafinil stack support", rarity:40, legal:"Legal supplement in Germany. Available on Amazon.de", notes:"Excellent Modafinil stack component. Prevents choline depletion headaches.", dup:false },
+  { sl:36, generic:"L-Theanine 100mg", brand:"Trexgenics", category:"supplement", type:"Amino Acid / Anxiolytic Supplement", use:"Calm focus, anxiety reduction, caffeine synergy, sleep quality improvement", rarity:20, legal:"Freely available in Germany (dm, Müller, Amazon)", notes:"Very common in Germany as a nootropic supplement.", dup:false },
+  { sl:37, generic:"Phosphatidylserine 100mg", brand:"Trexgenics", category:"supplement", type:"Phospholipid Supplement", use:"Memory, cognitive decline prevention, cortisol reduction, brain health", rarity:40, legal:"Legal supplement in Germany. Available via iHerb, Amazon.de", notes:"FDA-qualified health claim for cognitive function.", dup:false },
+  { sl:38, generic:"Melatonin 3mg", brand:"Trexgenics", category:"supplement", type:"Sleep Hormone Supplement", use:"Sleep onset, jet lag correction, circadian rhythm regulation", rarity:65, legal:"⚠ Prescription-only in Germany above 0.5mg. Cannot buy 3mg OTC. Use existing stock.", notes:"Stock conservatively. Online EU sources (NL) may carry. German Apotheke needs Rx for 3mg.", dup:false },
+  { sl:39, generic:"Magnesium Glycinate 2000mg", brand:"Tata 1mg", category:"supplement", type:"Mineral Supplement (High-dose Mg)", use:"Sleep quality, muscle relaxation, anxiety, nerve function, magnesium deficiency", rarity:20, legal:"Available in Germany (Magnesium Glycinat, various brands)", notes:"Easy to replenish. Bodybuilders and biohackers widely use in Germany.", dup:false },
+  { sl:40, generic:"Glutathione + D-Biotin", brand:"Tata 1mg", category:"supplement", type:"Antioxidant + B-Vitamin", use:"Oxidative stress reduction, skin health, detoxification, hair/nail support", rarity:25, legal:"Legal supplement. Available on Amazon.de, iHerb", notes:"Keep as part of antioxidant foundation stack.", dup:false },
+  { sl:41, generic:"Vitamin B Complex", brand:"Tata 1mg", category:"vitamin", type:"Vitamin Supplement", use:"Energy metabolism, nervous system support, red blood cell production, cognitive function", rarity:5, legal:"Freely available in Germany (Apotheke, dm, Rossmann)", notes:"Very easy to replenish anywhere in Germany.", dup:false },
+  { sl:42, generic:"Biotin 100% RDA", brand:"Tata 1mg", category:"vitamin", type:"Vitamin B7 Supplement", use:"Hair, skin, nail health, fatty acid metabolism, energy production", rarity:5, legal:"Freely available OTC in Germany", notes:"Easy replenish. Available everywhere.", dup:false },
+  { sl:43, generic:"Omega-3 1200mg Triple Strength", brand:"Tata 1mg", category:"vitamin", type:"Essential Fatty Acid Supplement", use:"Cardiovascular health, anti-inflammation, brain function, triglyceride reduction", rarity:5, legal:"Freely available in Germany (dm, Rossmann, Apotheke)", notes:"Easy replenish. Fish oil widely available.", dup:false },
+];
+
+const ALERTS = [
+  { type:"danger", icon:"⚠️", title:"MODAFINIL — BtMG CONTROLLED IN GERMANY", body:"76 tablets total (200mg×50 + 100mg×26). Modafinil is Schedule III under the Betäubungsmittelgesetz. You need a Betäubungsmittelrezept from a German doctor. Contact Studentenwerk TU Ilmenau for psychiatry referral ASAP. Do not carry loose strips outside your room." },
+  { type:"danger", icon:"⚠️", title:"MELATONIN 3mg — PRESCRIPTION-ONLY IN GERMANY", body:"Germany restricts Melatonin above 0.5mg to prescription only (Circadin 2mg is Rx). You cannot legally purchase your 3mg dose OTC here. Use existing stock wisely. Dutch online pharmacies are one option." },
+  { type:"warn",   icon:"🔶", title:"TRIPLE ANTIBIOTIC CLASSES — NO SELF-PRESCRIBING", body:"You carry Fluoroquinolones (Ciprofloxacin), Macrolides (Azithromycin), and Rifamycin class (Rifaximin). In Germany, antibiotic self-prescribing is both illegal and medically risky. Reserve strictly for genuine emergencies where a doctor is unreachable." },
+  { type:"warn",   icon:"🔶", title:"5 DUPLICATE GENERICS — DOUBLE-DOSE RISK", body:"Ciprofloxacin (×2 brands), Paracetamol (×2 brands), Azithromycin (×2 brands), Ondansetron (×2 packs), Loperamide (×2 brands). Physically separate or label clearly. Never take both brands simultaneously." },
+  { type:"warn",   icon:"🔶", title:"MEGASEPT-N — TRIPLE COMBO STEROID CREAM", body:"Beclomethasone (corticosteroid) + Neomycin (antibiotic) + Miconazole (antifungal). This combination is not approved/available in Germany. Reserve only for confirmed mixed infections. Prolonged corticosteroid skin use causes skin thinning." },
+  { type:"good",   icon:"✅", title:"GI EMERGENCY KIT — EXCELLENT COVERAGE", body:"Rifaximin + Loperamide + Ondansetron + Cefixime-LB + ZGUT probiotics. This is a comprehensive GI emergency kit for the dietary transition to Germany. Well done." },
+  { type:"good",   icon:"✅", title:"NOOTROPIC STACK — RESEARCH-GRADE & ALL LEGAL", body:"Rhodiola, Alpha-GPC, L-Tyrosine, L-Theanine, PS, Mg-L-Threonate, Carnosine. All are Nahrungsergänzungsmittel (food supplements) in Germany — fully legal. Stack is well-structured for high cognitive load." },
+  { type:"info",   icon:"ℹ️", title:"WHAT YOU ARE MISSING", body:"Consider adding: (1) Omeprazole 20mg — for stress-related gastritis during high-intensity study periods. Available OTC in Germany. (2) ORS sachets — electrolyte rehydration, vital given supplement load + dietary change. (3) Fluconazole 150mg — oral antifungal for systemic fungal infections. Prescription needed in Germany." },
+];
+
+const CAT_META = {
+  antibiotic:    { label:"Antibiotics",           color:"#ff4560" },
+  supplement:    { label:"Supplements/Nootropics",color:"#a78bfa" },
+  analgesic:     { label:"Analgesics/Antipyretics",color:"#fbbf24" },
+  gi:            { label:"GI / Gut Health",       color:"#10b981" },
+  topical:       { label:"Topical / Skin",         color:"#38bdf8" },
+  antihistamine: { label:"Antihistamines / Cold",  color:"#f472b6" },
+  vitamin:       { label:"Vitamins / Minerals",    color:"#34d399" },
+  supply:        { label:"Medical Supplies",       color:"#94a3b8" },
+  cognitive:     { label:"Cognitive / Wakefulness",color:"#00d4ff" },
+  antiemetic:    { label:"Antiemetics",            color:"#fb923c" },
+  antifungal:    { label:"Antifungals",            color:"#c4b5fd" },
+  nasal:         { label:"Nasal Decongestants",    color:"#7dd3fc" },
+  herbal:        { label:"Herbal / OTC",           color:"#a3e635" },
+  anaesthetic:   { label:"Local Anaesthetics",     color:"#f87171" },
+};
+
+// ─────────────────────────────────────────────
+//  STATE
+// ─────────────────────────────────────────────
+let activeCategory = null;
+let searchTerm = '';
+let sortKey = 'sl-asc';
+let sortCol = 'sl';
+let sortDir = 'asc';
+
+// ─────────────────────────────────────────────
+//  INIT
+// ─────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  buildStats();
+  buildCatChart();
+  buildRarityChart();
+  buildAlerts();
+  buildFilterChips();
+  buildTableHead();
+  renderTable();
+  document.getElementById('searchInput').addEventListener('input', e => {
+    searchTerm = e.target.value.trim().toLowerCase();
+    renderTable();
+  });
+  document.getElementById('sortSelect').addEventListener('change', e => {
+    const [k,d] = e.target.value.split('-');
+    sortKey = e.target.value;
+    sortCol = k;
+    sortDir = d;
+    renderTable();
+  });
+  document.getElementById('modalOverlay').addEventListener('click', e => {
+    if(e.target === document.getElementById('modalOverlay')) closeModal();
+  });
+});
+
+// ─────────────────────────────────────────────
+//  STATS
+// ─────────────────────────────────────────────
+function buildStats() {
+  const total = MEDS.length;
+  const unique = MEDS.filter(m => !m.dup || (m.dup && !MEDS.slice(0,MEDS.indexOf(m)).some(x => x.generic === m.generic))).length;
+  const highRarity = MEDS.filter(m => m.rarity > 60).length;
+  const avgRarity = Math.round(MEDS.reduce((a,m)=>a+m.rarity,0)/MEDS.length);
+  const stats = [
+    { label:"Total Items",       value:total,      sub:"logged medications" },
+    { label:"Unique Generics",   value:36,          sub:"after deduplication" },
+    { label:"Avg Rarity (DE)",   value:avgRarity,   sub:"out of 100" },
+    { label:"High Rarity (>60)", value:highRarity,  sub:"hard to find in Germany" },
+  ];
+  document.getElementById('statsRow').innerHTML = stats.map(s=>`
+    <div class="stat">
+      <div class="stat-label">${s.label}</div>
+      <div class="stat-value">${s.value}</div>
+      <div class="stat-sub">${s.sub}</div>
+    </div>
+  `).join('');
+}
+
+// ─────────────────────────────────────────────
+//  CATEGORY CHART
+// ─────────────────────────────────────────────
+function buildCatChart() {
+  const counts = {};
+  MEDS.forEach(m => { counts[m.category] = (counts[m.category]||0)+1; });
+  const sorted = Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+  const max = sorted[0][1];
+  document.getElementById('catChart').innerHTML = sorted.map(([cat,n])=>{
+    const meta = CAT_META[cat]||{label:cat,color:'#888'};
+    const pct = Math.round((n/max)*100);
+    return `<div class="cat-row">
+      <div class="cat-name">${meta.label}</div>
+      <div class="cat-track"><div class="cat-fill" style="width:${pct}%;background:${meta.color}"></div></div>
+      <div class="cat-num">${n}</div>
+    </div>`;
+  }).join('');
+}
+
+// ─────────────────────────────────────────────
+//  RARITY CHART
+// ─────────────────────────────────────────────
+function buildRarityChart() {
+  const buckets = [
+    { label:"0–20\nCommon",   min:0,  max:20,  color:"#10b981" },
+    { label:"21–40\nModerate",min:21, max:40,  color:"#86efac" },
+    { label:"41–60\nUncommon",min:41, max:60,  color:"#fbbf24" },
+    { label:"61–80\nRare",    min:61, max:80,  color:"#fb923c" },
+    { label:"81–100\nV.Rare", min:81, max:100, color:"#ff4560" },
+  ];
+  const counts = buckets.map(b => ({
+    ...b,
+    count: MEDS.filter(m=>m.rarity>=b.min&&m.rarity<=b.max).length
+  }));
+  const max = Math.max(...counts.map(c=>c.count));
+  document.getElementById('rarityChart').innerHTML = counts.map(c=>`
+    <div class="r-col">
+      <div class="r-val">${c.count}</div>
+      <div class="r-bar" style="height:${Math.round((c.count/max)*80)}px;background:${c.color}"></div>
+      <div class="r-lbl">${c.label.replace('\n','<br>')}</div>
+    </div>
+  `).join('');
+}
+
+// ─────────────────────────────────────────────
+//  ALERTS
+// ─────────────────────────────────────────────
+function buildAlerts() {
+  document.getElementById('alertsList').innerHTML = ALERTS.map(a=>`
+    <div class="alert ${a.type}">
+      <div class="alert-icon">${a.icon}</div>
+      <div class="alert-text">
+        <div class="alert-title">${a.title}</div>
+        <div class="alert-body">${a.body}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ─────────────────────────────────────────────
+//  FILTER CHIPS
+// ─────────────────────────────────────────────
+function buildFilterChips() {
+  const cats = [...new Set(MEDS.map(m=>m.category))].sort();
+  const wrap = document.getElementById('filterChips');
+  const allChip = document.createElement('span');
+  allChip.className = 'chip active';
+  allChip.textContent = 'ALL';
+  allChip.onclick = () => { activeCategory=null; document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active')); allChip.classList.add('active'); renderTable(); };
+  wrap.appendChild(allChip);
+  cats.forEach(cat => {
+    const meta = CAT_META[cat]||{label:cat};
+    const chip = document.createElement('span');
+    chip.className = `chip cat-${cat}`;
+    chip.textContent = meta.label;
+    chip.onclick = () => {
+      document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+      chip.classList.add('active');
+      activeCategory = cat;
+      renderTable();
+    };
+    wrap.appendChild(chip);
+  });
+}
+
+// ─────────────────────────────────────────────
+//  TABLE HEAD
+// ─────────────────────────────────────────────
+const COLS = [
+  { key:'sl',     label:'#',         w:'40px' },
+  { key:'name',   label:'Generic Name / Brand', w:'' },
+  { key:'type',   label:'Type',      w:'160px' },
+  { key:'use',    label:'Uses',      w:'220px' },
+  { key:'rarity', label:'Rarity (DE)',w:'90px' },
+];
+
+function buildTableHead() {
+  document.getElementById('tableHead').innerHTML = COLS.map(c=>`
+    <th data-key="${c.key}" style="${c.w?'width:'+c.w:''}" onclick="onSort('${c.key}')">
+      ${c.label} <span class="sort-icon">↕</span>
+    </th>
+  `).join('');
+}
+
+function onSort(key) {
+  if(sortCol===key) { sortDir = sortDir==='asc'?'desc':'asc'; }
+  else { sortCol=key; sortDir='asc'; }
+  sortKey = sortCol+'-'+sortDir;
+  document.getElementById('sortSelect').value = Object.keys({
+    'sl-asc':1,'sl-desc':1,'name-asc':1,'name-desc':1,'rarity-asc':1,'rarity-desc':1
+  }).includes(sortKey) ? sortKey : 'sl-asc';
+  document.querySelectorAll('th').forEach(th=>{
+    th.classList.toggle('sorted', th.dataset.key===sortCol);
+    if(th.dataset.key===sortCol){
+      th.querySelector('.sort-icon').textContent = sortDir==='asc'?'↑':'↓';
+    } else {
+      th.querySelector('.sort-icon').textContent = '↕';
+    }
+  });
+  renderTable();
+}
+
+// ─────────────────────────────────────────────
+//  RENDER TABLE
+// ─────────────────────────────────────────────
+function rarityColor(r) {
+  if(r<=20) return '#10b981';
+  if(r<=40) return '#86efac';
+  if(r<=60) return '#fbbf24';
+  if(r<=80) return '#fb923c';
+  return '#ff4560';
+}
+function rarityLabel(r) {
+  if(r<=20) return '<span class="rarity-flag" style="color:#10b981">●</span>';
+  if(r<=40) return '<span class="rarity-flag" style="color:#86efac">●</span>';
+  if(r<=60) return '<span class="rarity-flag" style="color:#fbbf24">▲</span>';
+  if(r<=80) return '<span class="rarity-flag" style="color:#fb923c">▲</span>';
+  return '<span class="rarity-flag" style="color:#ff4560">⬆</span>';
+}
+
+function typeBadgeClass(cat) {
+  const map = {
+    antibiotic:'type-antibiotic', supplement:'type-supplement',
+    analgesic:'type-analgesic', gi:'type-gi', topical:'type-topical',
+    antihistamine:'type-antihistamine', vitamin:'type-vitamin',
+    cognitive:'type-cognitive', antiemetic:'type-antiemetic',
+    antifungal:'type-antifungal', nasal:'type-nasal', supply:'type-supply',
+    herbal:'type-herbal', anaesthetic:'type-anaesthetic', probiotic:'type-probiotic',
+  };
+  return map[cat]||'type-supply';
+}
+
+function renderTable() {
+  let data = [...MEDS];
+  // filter category
+  if(activeCategory) data = data.filter(m=>m.category===activeCategory);
+  // filter search
+  if(searchTerm) {
+    data = data.filter(m =>
+      m.generic.toLowerCase().includes(searchTerm) ||
+      m.brand.toLowerCase().includes(searchTerm) ||
+      m.use.toLowerCase().includes(searchTerm) ||
+      m.type.toLowerCase().includes(searchTerm) ||
+      m.category.toLowerCase().includes(searchTerm)
+    );
+  }
+  // sort
+  data.sort((a,b)=>{
+    let av, bv;
+    if(sortCol==='sl') { av=a.sl; bv=b.sl; }
+    else if(sortCol==='name') { av=a.generic.toLowerCase(); bv=b.generic.toLowerCase(); }
+    else if(sortCol==='rarity') { av=a.rarity; bv=b.rarity; }
+    else { av=a.sl; bv=b.sl; }
+    if(av<bv) return sortDir==='asc'?-1:1;
+    if(av>bv) return sortDir==='asc'?1:-1;
+    return 0;
+  });
+
+  const dups = data.filter(m=>m.dup).length;
+  document.getElementById('resultsCount').innerHTML = `Showing <b>${data.length}</b> of <b>${MEDS.length}</b> items`;
+  document.getElementById('dupNote').textContent = dups>0 ? `⬦ ${dups} items have duplicate generics` : '';
+
+  const tbody = document.getElementById('tableBody');
+  const empty = document.getElementById('emptyState');
+  if(data.length===0){
+    tbody.innerHTML='';
+    empty.style.display='block';
+    return;
+  }
+  empty.style.display='none';
+  tbody.innerHTML = data.map((m,i)=>`
+    <tr onclick="openModal(${m.sl-1})" style="cursor:pointer;animation-delay:${i*0.02}s">
+      <td class="td-sl">${String(m.sl).padStart(2,'0')}</td>
+      <td class="td-name">
+        <div class="td-generic">${m.generic}${m.dup?'<span class="dup-dot" title="Duplicate generic"></span>':''}</div>
+        <div class="td-brand">${m.brand}</div>
+      </td>
+      <td class="td-type"><span class="type-badge ${typeBadgeClass(m.category)}">${m.category}</span></td>
+      <td class="td-use">${m.use}</td>
+      <td class="td-rarity">
+        <div class="rarity-meter">
+          <div class="rarity-track"><div class="rarity-fill" style="width:${m.rarity}%;background:${rarityColor(m.rarity)}"></div></div>
+          <div class="rarity-num">${rarityLabel(m.rarity)} ${m.rarity}/100</div>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+// ─────────────────────────────────────────────
+//  MODAL
+// ─────────────────────────────────────────────
+function openModal(idx) {
+  const m = MEDS[idx];
+  const rc = rarityColor(m.rarity);
+  document.getElementById('modalContent').innerHTML = `
+    <button class="modal-close" onclick="closeModal()">✕ CLOSE</button>
+    <div class="modal-tag">MedVault · Item ${String(m.sl).padStart(2,'0')}</div>
+    <div class="modal-name">${m.generic}</div>
+    <div class="modal-brand">${m.brand}</div>
+    <div class="modal-divider"></div>
+    <div class="modal-row">
+      <div class="modal-row-label">Category</div>
+      <div class="modal-row-val"><span class="type-badge ${typeBadgeClass(m.category)}">${m.type}</span></div>
+    </div>
+    <div class="modal-row">
+      <div class="modal-row-label">Uses</div>
+      <div class="modal-row-val">${m.use}</div>
+    </div>
+    <div class="modal-row">
+      <div class="modal-row-label">Rarity (DE)</div>
+      <div class="modal-row-val" style="color:${rc};font-weight:600">${m.rarity}/100</div>
+    </div>
+    <div class="modal-row">
+      <div class="modal-row-label">Legal (DE)</div>
+      <div class="modal-row-val">${m.legal}</div>
+    </div>
+    <div class="modal-row">
+      <div class="modal-row-label">Notes</div>
+      <div class="modal-row-val">${m.notes}</div>
+    </div>
+    ${m.dup?`<div class="modal-divider"></div><div style="font-size:9px;color:var(--amber);padding:6px 10px;background:var(--amber-dim);border-radius:6px;border:1px solid rgba(251,191,36,0.2)">⬦ Duplicate generic — another brand of this compound exists in your kit. Label carefully.</div>`:''}
+  `;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+}
+</script>
+</body>
+</html>
